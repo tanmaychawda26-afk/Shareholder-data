@@ -1,0 +1,1650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShareBook — Register of Members · Companies Act 2013</title>
+<link rel="stylesheet" href="https://unpkg.com/@tabler/icons-webfont@3.19.0/tabler-icons.min.css">
+<style>
+/* ===== DESIGN TOKENS ===== */
+:root{
+  --bg:#f7f8fa;--surface:#fff;--border:#e2e5eb;--border-md:#c8cdd8;
+  --text:#1a1d23;--muted:#6b7280;--xs:#9ca3af;
+  --accent:#1e3a8a;--accent-l:#eff4ff;--accent-m:#3b5fc0;
+  --green:#166534;--green-bg:#f0fdf4;--green-b:#86efac;
+  --amber:#92400e;--amber-bg:#fffbeb;--amber-b:#fcd34d;
+  --red:#991b1b;--red-bg:#fff5f5;--red-b:#fca5a5;
+  --blue:#075985;--blue-bg:#f0f9ff;--blue-b:#7dd3fc;
+  --purple:#5b21b6;--purple-bg:#f5f3ff;
+  --r4:4px;--r6:6px;--r10:10px;--r14:14px;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.05);
+  --sh-md:0 4px 16px rgba(0,0,0,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;min-height:100vh}
+
+/* ===== SCREEN SWITCHING ===== */
+#screenCompanies{display:flex;flex-direction:column;min-height:100vh}
+#screenApp{display:none;flex-direction:column;min-height:100vh}
+
+/* ===== COMPANY PICKER ===== */
+.pk-header{background:var(--surface);border-bottom:1px solid var(--border);height:60px;display:flex;align-items:center;padding:0 28px;gap:12px;position:sticky;top:0;z-index:50}
+.pk-logo{width:36px;height:36px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;flex-shrink:0}
+.pk-brand{font-size:16px;font-weight:700}
+.pk-sub{font-size:11px;color:var(--muted)}
+.pk-body{flex:1;padding:36px 28px;max-width:1100px;margin:0 auto;width:100%}
+.pk-body h1{font-size:22px;font-weight:700;margin-bottom:4px}
+.pk-body p{font-size:13px;color:var(--muted);margin-bottom:28px}
+
+.co-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:14px}
+.co-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r14);padding:20px;cursor:pointer;transition:border-color .15s,box-shadow .15s;position:relative;overflow:hidden}
+.co-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:var(--co-color,var(--accent))}
+.co-card:hover{border-color:var(--co-color,var(--accent));box-shadow:0 0 0 3px rgba(30,58,138,.1)}
+.co-icon{width:42px;height:42px;border-radius:10px;background:var(--co-color,var(--accent));display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:700;margin-bottom:12px}
+.co-name{font-size:14px;font-weight:700;margin-bottom:2px}
+.co-cin{font-size:11px;color:var(--muted);font-family:monospace;margin-bottom:12px}
+.co-stats{display:flex;gap:18px}
+.co-stat{font-size:11px;color:var(--muted)}
+.co-stat strong{display:block;font-size:15px;font-weight:700;color:var(--text)}
+.co-actions{position:absolute;top:10px;right:10px;display:none;gap:4px}
+.co-card:hover .co-actions{display:flex}
+
+.co-new{border-style:dashed;background:transparent;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;min-height:145px;color:var(--muted);font-size:13px;font-weight:500}
+.co-new:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-l)}
+.co-new i{font-size:28px}
+
+/* ===== APP HEADER ===== */
+.app-header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 22px;display:flex;align-items:center;gap:12px;height:54px;position:sticky;top:0;z-index:100}
+.app-co-icon{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;flex-shrink:0}
+.app-co-name{font-size:14px;font-weight:700;line-height:1.2}
+.app-co-sub{font-size:10px;color:var(--muted)}
+.hdr-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.switch-btn{display:flex;align-items:center;gap:5px;padding:5px 11px;border:1px solid var(--border-md);border-radius:var(--r6);background:var(--surface);cursor:pointer;font-size:12px;color:var(--muted);font-weight:500;font-family:inherit;transition:all .15s}
+.switch-btn:hover{background:var(--bg);color:var(--text)}
+
+/* ===== TABS ===== */
+.tabs{background:var(--surface);border-bottom:1px solid var(--border);padding:0 22px;display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:12px 16px;font-size:13px;font-weight:500;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:6px;font-family:inherit;flex-shrink:0}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab .ct{background:var(--accent-l);color:var(--accent);border-radius:10px;padding:1px 7px;font-size:11px;font-weight:700}
+
+/* ===== MAIN ===== */
+.main{padding:22px;max-width:1440px;margin:0 auto}
+.panel{display:none}
+.panel.active{display:block}
+
+/* ===== CARDS ===== */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r14);padding:20px;box-shadow:var(--sh)}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-title{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+.card-title i{color:var(--accent)}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r10);padding:16px}
+.stat-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.stat-val{font-size:22px;font-weight:700;color:var(--text)}
+.stat-sub{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* ===== TABLE ===== */
+.tbl-wrap{overflow-x:auto;border-radius:var(--r10);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:820px}
+thead th{background:#f8f9fc;padding:10px 13px;text-align:left;font-weight:600;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--border);white-space:nowrap;user-select:none}
+tbody td{padding:11px 13px;border-bottom:1px solid var(--border);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:#fafbfe}
+
+/* ===== FORM ===== */
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(225px,1fr));gap:13px}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg.full{grid-column:1/-1}
+.flbl{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.req{color:#dc2626;margin-left:2px}
+input,select,textarea{width:100%;padding:8px 11px;border:1px solid var(--border-md);border-radius:var(--r6);font-size:13px;color:var(--text);background:var(--surface);outline:none;transition:border .15s,box-shadow .15s;font-family:inherit}
+input:focus,select:focus,textarea:focus{border-color:var(--accent-m);box-shadow:0 0 0 3px rgba(59,95,192,.12)}
+input::placeholder,textarea::placeholder{color:var(--xs)}
+.hint{font-size:11px;color:var(--xs);margin-top:2px}
+.sec-div{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;grid-column:1/-1;padding-bottom:6px;border-bottom:1px solid var(--border);margin-top:8px;display:flex;align-items:center;gap:8px}
+
+/* ===== BUTTONS ===== */
+.btn{padding:8px 15px;border-radius:var(--r6);font-size:13px;font-weight:500;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:6px;transition:all .15s;font-family:inherit;white-space:nowrap}
+.btn-p{background:var(--accent);color:#fff}.btn-p:hover{background:var(--accent-m)}
+.btn-s{background:var(--surface);color:var(--text);border:1px solid var(--border-md)}.btn-s:hover{background:var(--bg)}
+.btn-g{background:#16a34a;color:#fff}.btn-g:hover{background:#15803d}
+.btn-dr{background:var(--surface);color:var(--red);border:1px solid var(--red-b)}.btn-dr:hover{background:var(--red-bg)}
+.btn-sm{padding:5px 10px;font-size:12px}
+.ico-btn{padding:6px;border-radius:var(--r6);border:1px solid var(--border);background:var(--surface);cursor:pointer;color:var(--muted);display:inline-flex;transition:all .15s;line-height:1}
+.ico-btn:hover{color:var(--text);background:var(--bg)}
+.ico-btn.red:hover{color:var(--red);border-color:var(--red-b);background:var(--red-bg)}
+
+/* ===== BADGES ===== */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+.b-blue{background:var(--blue-bg);color:var(--blue)}
+.b-green{background:var(--green-bg);color:var(--green)}
+.b-amber{background:var(--amber-bg);color:var(--amber)}
+.b-red{background:var(--red-bg);color:var(--red)}
+.b-gray{background:#f3f4f6;color:#4b5563}
+.b-purple{background:var(--purple-bg);color:var(--purple)}
+
+/* ===== MODAL ===== */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;align-items:center;justify-content:center;padding:16px}
+.overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:var(--r14);width:100%;max-width:800px;max-height:92vh;overflow-y:auto;box-shadow:var(--sh-md)}
+.modal-sm{max-width:460px}
+.m-head{padding:18px 22px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:10}
+.m-title{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px}
+.m-body{padding:20px 22px}
+.m-foot{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;align-items:center}
+
+/* ===== ALERTS ===== */
+.alert{padding:12px 15px;border-radius:var(--r6);border:1px solid;display:flex;align-items:flex-start;gap:10px;font-size:13px;margin-bottom:16px}
+.alert i{margin-top:1px;flex-shrink:0}
+.a-info{background:var(--blue-bg);border-color:var(--blue-b);color:var(--blue)}
+.a-warn{background:var(--amber-bg);border-color:var(--amber-b);color:var(--amber)}
+.a-danger{background:var(--red-bg);border-color:var(--red-b);color:var(--red)}
+
+/* ===== TIMELINE ===== */
+.timeline{list-style:none;position:relative;padding-left:22px}
+.timeline::before{content:'';position:absolute;left:7px;top:8px;bottom:8px;width:1px;background:var(--border)}
+.tl-item{position:relative;padding:0 0 14px 16px}
+.tl-item::before{content:'';position:absolute;left:-15px;top:5px;width:8px;height:8px;border-radius:50%;background:var(--accent);border:2px solid #fff;box-shadow:0 0 0 2px var(--border)}
+.tl-date{font-size:11px;color:var(--xs)}
+.tl-title{font-size:13px;font-weight:600;margin:2px 0}
+.tl-detail{font-size:12px;color:var(--muted)}
+
+/* ===== MISC ===== */
+.srch{position:relative}
+.srch input{padding-left:36px}
+.srch i{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:16px;pointer-events:none}
+.action-bar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.folio{font-family:monospace;font-size:12px;background:#f3f4f6;padding:2px 7px;border-radius:4px;color:var(--muted)}
+.empty{text-align:center;padding:48px 20px;color:var(--muted)}
+.empty i{font-size:38px;color:var(--border);margin-bottom:12px;display:block}
+.empty p{font-size:14px}
+.conv-box{display:none;background:var(--blue-bg);border:1px solid var(--blue-b);border-radius:var(--r6);padding:12px 15px;font-size:13px;color:var(--blue);margin-top:10px}
+.nc-box{display:none;background:var(--amber-bg);border:1px solid var(--amber-b);border-radius:var(--r6);padding:12px 15px;font-size:13px;color:var(--amber);margin-top:10px}
+.bar{height:8px;border-radius:4px;background:var(--accent-l);overflow:hidden;margin-top:4px}
+.bar-fill{height:100%;border-radius:4px;background:var(--accent);transition:width .4s}
+.legal-note{font-size:11px;color:var(--xs);display:flex;align-items:center;gap:5px}
+.audit-row{border:1px solid var(--border);border-radius:var(--r6);padding:10px 12px;margin-bottom:7px;font-size:12px}
+.audit-row:last-child{margin-bottom:0}
+
+/* ===== COLOR PICKER ===== */
+.color-swatches{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.swatch{width:28px;height:28px;border-radius:50%;cursor:pointer;transition:transform .15s;border:3px solid transparent;outline:2px solid transparent;outline-offset:-5px}
+.swatch:hover{transform:scale(1.15)}
+.swatch.sel{outline-color:#fff}
+
+/* ===== PAGINATION ===== */
+.pagination{display:flex;align-items:center;gap:6px;margin-top:14px;font-size:13px}
+.pg-btn{padding:5px 10px;border:1px solid var(--border-md);border-radius:var(--r6);background:var(--surface);cursor:pointer;font-size:12px;color:var(--muted);font-family:inherit;transition:all .15s}
+.pg-btn:hover:not(:disabled){background:var(--bg);color:var(--text)}
+.pg-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.pg-btn:disabled{opacity:.4;cursor:not-allowed}
+.pg-info{color:var(--muted);font-size:12px}
+
+/* ===== TOAST ===== */
+#toast{position:fixed;bottom:24px;right:24px;z-index:999;display:none;pointer-events:none}
+.toast-inner{background:#1a1d23;color:#fff;padding:11px 18px;border-radius:10px;font-size:13px;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,.25);animation:slideUp .2s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== PRINT ===== */
+@media print{
+  .app-header,.tabs,.action-bar,.btn,.overlay,.hdr-right,.switch-btn{display:none!important}
+  .panel:not(.active){display:none!important}
+  .tbl-wrap{overflow:visible;border:none}
+  table{min-width:unset}
+  thead th{background:#f0f0f0!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN 1 — COMPANY PICKER
+══════════════════════════════════════════════════════════ -->
+<div id="screenCompanies">
+  <div class="pk-header">
+    <div class="pk-logo"><i class="ti ti-building-estate"></i></div>
+    <div>
+      <div class="pk-brand">ShareBook</div>
+      <div class="pk-sub">Multi-Company Register of Members · Companies Act, 2013</div>
+    </div>
+  </div>
+  <div class="pk-body">
+    <h1>Select Company</h1>
+    <p>Each company is a completely isolated database. No data is ever shared between companies. All data is saved in your browser's localStorage.</p>
+    <div class="co-grid" id="coGrid">
+      <!-- Rendered by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN 2 — APP (per company)
+══════════════════════════════════════════════════════════ -->
+<div id="screenApp">
+
+  <div class="app-header">
+    <div class="app-co-icon" id="appIcon">A</div>
+    <div>
+      <div class="app-co-name" id="appCoName">—</div>
+      <div class="app-co-sub">Register of Members · Sec. 88, Companies Act 2013</div>
+    </div>
+    <div class="hdr-right">
+      <button class="switch-btn" onclick="goToPicker()"><i class="ti ti-arrows-left-right"></i> Switch Company</button>
+      <button class="btn btn-s btn-sm" onclick="openEditCo()"><i class="ti ti-settings"></i> Company Details</button>
+      <button class="btn btn-p btn-sm" onclick="openAddMember()"><i class="ti ti-plus"></i> Add Member</button>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabsBar">
+    <button class="tab active" onclick="showTab('dashboard',this)"><i class="ti ti-layout-dashboard"></i> Dashboard</button>
+    <button class="tab" onclick="showTab('members',this)"><i class="ti ti-users"></i> Register of Members <span class="ct" id="bdgM">0</span></button>
+    <button class="tab" onclick="showTab('transactions',this)"><i class="ti ti-arrows-exchange"></i> Corporate Actions <span class="ct" id="bdgT">0</span></button>
+    <button class="tab" onclick="showTab('mgt1',this)"><i class="ti ti-file-description"></i> MGT-1 Extract</button>
+    <button class="tab" onclick="showTab('captable',this)"><i class="ti ti-chart-pie"></i> Cap Table</button>
+  </div>
+
+  <div class="main">
+
+    <!-- ── DASHBOARD ── -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="stat-grid">
+        <div class="stat"><div class="stat-lbl">Active Members</div><div class="stat-val" id="s-m">0</div><div class="stat-sub">Registered shareholders</div></div>
+        <div class="stat"><div class="stat-lbl">Paid-up Capital</div><div class="stat-val" id="s-c">₹0</div><div class="stat-sub">Across all classes</div></div>
+        <div class="stat"><div class="stat-lbl">Share Classes</div><div class="stat-val" id="s-cl">0</div><div class="stat-sub">Types of securities</div></div>
+        <div class="stat"><div class="stat-lbl">Corporate Actions</div><div class="stat-val" id="s-a">0</div><div class="stat-sub">Recorded events</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px">
+        <div class="card">
+          <div class="card-hdr"><div class="card-title"><i class="ti ti-chart-bar"></i> Shareholding by Class</div></div>
+          <div id="dashClasses"><div class="empty"><i class="ti ti-chart-pie"></i><p>No shareholders yet.</p></div></div>
+        </div>
+        <div class="card">
+          <div class="card-hdr"><div class="card-title"><i class="ti ti-clock-history"></i> Recent Activity</div></div>
+          <ul class="timeline" id="dashActivity"><li style="color:var(--xs);font-size:12px;padding-left:16px">No activity yet.</li></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MEMBERS ── -->
+    <div class="panel" id="panel-members">
+      <div class="alert a-info"><i class="ti ti-info-circle"></i><div><strong>Sec. 88, Companies Act 2013</strong> — Every company shall maintain a Register of Members containing name, address, folio number, date of entry/cessation, shares held, amount paid and related details. Entries must be made within 7 days of allotment or transfer.</div></div>
+      <div class="action-bar">
+        <div class="srch" style="flex:1;max-width:310px"><i class="ti ti-search"></i><input type="text" id="mSearch" placeholder="Search name, folio, PAN…" oninput="filterMembers()"></div>
+        <select id="mFilterClass" onchange="filterMembers()" style="width:auto"><option value="">All share classes</option></select>
+        <select id="mFilterStatus" onchange="filterMembers()" style="width:auto">
+          <option value="">All statuses</option><option value="Active">Active</option><option value="Ceased">Ceased</option>
+        </select>
+        <select id="mPageSize" onchange="filterMembers()" style="width:auto">
+          <option value="25">25 / page</option><option value="50">50 / page</option><option value="100">100 / page</option><option value="9999">All</option>
+        </select>
+        <button class="btn btn-s btn-sm" onclick="exportMembersCSV()"><i class="ti ti-download"></i> Export CSV</button>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>Folio No.</th><th>Member Name</th><th>Address</th><th>PAN / Passport</th>
+            <th>Share Class</th><th>No. of Shares</th><th>Nom. Value</th><th>Paid-up</th>
+            <th>Date of Entry</th><th>Status</th><th style="text-align:center">Actions</th>
+          </tr></thead>
+          <tbody id="mBody"></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="mPagination"></div>
+    </div>
+
+    <!-- ── TRANSACTIONS ── -->
+    <div class="panel" id="panel-transactions">
+      <div class="alert a-info"><i class="ti ti-info-circle"></i><div>Record all corporate actions that alter shareholding — Allotment (Sec. 39), Transfer (Sec. 56), Transmission (Sec. 56), Buyback (Sec. 68), Bonus (Sec. 63), Rights Issue (Sec. 62), ESOPs, Conversion (Sec. 64), Forfeiture, Sub-division / Consolidation (Sec. 61), Reduction of Capital (Sec. 66).</div></div>
+      <div class="action-bar">
+        <button class="btn btn-p" onclick="openModal('modalTx')"><i class="ti ti-plus"></i> Record Corporate Action</button>
+        <div class="srch" style="flex:1;max-width:310px"><i class="ti ti-search"></i><input type="text" id="tSearch" placeholder="Search actions…" oninput="filterTx()"></div>
+        <select id="tFilterType" onchange="filterTx()" style="width:auto"><option value="">All action types</option></select>
+        <button class="btn btn-s btn-sm" onclick="exportTxCSV()"><i class="ti ti-download"></i> Export CSV</button>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>Date</th><th>Action Type</th><th>From / Source</th><th>To / Beneficiary</th>
+            <th>Share Class</th><th>Shares</th><th>Consideration (₹)</th><th>Authority</th><th>Remarks</th>
+          </tr></thead>
+          <tbody id="tBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── MGT-1 ── -->
+    <div class="panel" id="panel-mgt1">
+      <div class="alert a-warn"><i class="ti ti-alert-triangle"></i><div><strong>Form MGT-1</strong> — Register of Members as per Rule 3 of the Companies (Management and Administration) Rules, 2014. This extract is for internal reference and record-keeping. File the official MGT-1 with the Registrar of Companies as required.</div></div>
+      <div class="action-bar">
+        <button class="btn btn-p" onclick="window.print()"><i class="ti ti-printer"></i> Print / Export MGT-1</button>
+        <div class="legal-note"><i class="ti ti-shield-check"></i> Sec. 88, Companies Act 2013 r/w Rule 3, Companies (Mgt &amp; Admin) Rules, 2014</div>
+      </div>
+      <div id="mgt1Content" class="card"></div>
+    </div>
+
+    <!-- ── CAP TABLE ── -->
+    <div class="panel" id="panel-captable">
+      <div class="action-bar">
+        <button class="btn btn-g" onclick="exportCapCSV()"><i class="ti ti-download"></i> Export Cap Table CSV</button>
+        <label style="display:flex;align-items:center;gap:7px;font-size:13px;cursor:pointer;font-weight:500">
+          <input type="checkbox" id="fdToggle" onchange="renderCapTable()" style="width:auto"> Show Fully Diluted (FD)
+        </label>
+      </div>
+      <div class="stat-grid" id="capStats"></div>
+      <div class="tbl-wrap">
+        <table><thead><tr>
+          <th>#</th><th>Shareholder Name</th><th>Category</th><th>Type of Shares</th>
+          <th>No. of Shares</th><th>% Holding</th><th>FD Shares</th><th>FD %</th><th>Visual</th>
+        </tr></thead>
+        <tbody id="capBody"></tbody></table>
+      </div>
+      <p style="margin-top:10px;font-size:11px;color:var(--xs)">* FD (Fully Diluted) includes conversion of preference shares, warrants and convertible instruments at their stated conversion ratios as per Sec. 64, Companies Act 2013. Non-convertible instruments are excluded.</p>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /screenApp -->
+
+
+<!-- ═══════════════════════════════════════════════════════
+     MODALS
+══════════════════════════════════════════════════════════ -->
+
+<!-- NEW / EDIT COMPANY -->
+<div class="overlay" id="modalCo">
+  <div class="modal modal-sm">
+    <div class="m-head">
+      <div class="m-title"><i class="ti ti-building-estate"></i> <span id="coModalTitle">Add New Company</span></div>
+      <button class="ico-btn" onclick="closeModal('modalCo')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="m-body">
+      <div class="fgrid" style="grid-template-columns:1fr">
+        <div class="fg"><label class="flbl">Company Name <span class="req">*</span></label><input id="co-name" placeholder="e.g. Acme Private Limited"></div>
+        <div class="fg"><label class="flbl">CIN <span class="req">*</span></label><input id="co-cin" placeholder="U12345MH2020PTC123456" style="text-transform:uppercase"><div class="hint">Corporate Identity Number — 21 characters</div></div>
+        <div class="fg"><label class="flbl">Date of Incorporation</label><input type="date" id="co-incDate"></div>
+        <div class="fg"><label class="flbl">Registered Office Address</label><textarea id="co-address" rows="2" placeholder="Full address with state and PIN code"></textarea></div>
+        <div class="fg"><label class="flbl">Authorised Capital (₹)</label><input type="number" id="co-authCap" placeholder="e.g. 1000000" min="0"></div>
+        <div class="fg"><label class="flbl">Nominal Value per Equity Share (₹)</label><input type="number" id="co-nomVal" placeholder="e.g. 10" value="10" min="1"></div>
+        <div class="fg"><label class="flbl">Company Colour</label>
+          <div class="color-swatches" id="colorSwatches">
+            <div class="swatch sel" data-c="#1e3a8a" style="background:#1e3a8a"></div>
+            <div class="swatch" data-c="#166534" style="background:#166534"></div>
+            <div class="swatch" data-c="#9333ea" style="background:#9333ea"></div>
+            <div class="swatch" data-c="#c2410c" style="background:#c2410c"></div>
+            <div class="swatch" data-c="#0e7490" style="background:#0e7490"></div>
+            <div class="swatch" data-c="#b45309" style="background:#b45309"></div>
+            <div class="swatch" data-c="#be185d" style="background:#be185d"></div>
+            <div class="swatch" data-c="#374151" style="background:#374151"></div>
+          </div>
+          <input type="hidden" id="co-color" value="#1e3a8a">
+        </div>
+      </div>
+    </div>
+    <div class="m-foot">
+      <div style="margin-right:auto" id="coDeleteWrap" style="display:none">
+        <button class="btn btn-dr btn-sm" onclick="confirmDeleteCo()"><i class="ti ti-trash"></i> Delete Company</button>
+      </div>
+      <button class="btn btn-s" onclick="closeModal('modalCo')">Cancel</button>
+      <button class="btn btn-p" onclick="saveCo()"><i class="ti ti-check"></i> <span id="coSaveLabel">Create Company</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD / EDIT MEMBER -->
+<div class="overlay" id="modalMember">
+  <div class="modal">
+    <div class="m-head">
+      <div class="m-title"><i class="ti ti-user-plus"></i> <span id="mbrTitle">Add Member to Register</span></div>
+      <button class="ico-btn" onclick="closeModal('modalMember')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="m-body">
+      <div class="alert a-info" style="font-size:12px"><i class="ti ti-info-circle"></i> Fields marked <span class="req">*</span> are mandatory under Sec. 88, Companies Act 2013 r/w Rule 3, Companies (Management &amp; Administration) Rules, 2014.</div>
+      <div class="fgrid">
+        <!-- Section: Identity -->
+        <div class="sec-div"><i class="ti ti-user"></i> Member Identity</div>
+        <div class="fg"><label class="flbl">Full Name <span class="req">*</span></label><input id="s-name" placeholder="As per PAN / Passport"><div class="hint">Joint holders: enter primary holder name</div></div>
+        <div class="fg"><label class="flbl">Father's / Spouse Name</label><input id="s-father" placeholder="For natural persons"></div>
+        <div class="fg"><label class="flbl">Nationality <span class="req">*</span></label>
+          <select id="s-natl"><option>Indian</option><option>Foreign National</option><option>NRI</option><option>OCI</option></select>
+        </div>
+        <div class="fg"><label class="flbl">Member Category</label>
+          <select id="s-type">
+            <option value="Individual">Individual</option><option value="Body Corporate">Body Corporate</option>
+            <option value="HUF">HUF</option><option value="Partnership Firm">Partnership Firm</option>
+            <option value="LLP">LLP</option><option value="Trust">Trust</option>
+            <option value="FII/FPI">FII / FPI</option><option value="Promoter">Promoter</option>
+            <option value="ESOP Trust">ESOP Trust</option>
+          </select>
+        </div>
+        <div class="fg"><label class="flbl">PAN <span class="req">*</span></label><input id="s-pan" placeholder="ABCDE1234F" maxlength="10" oninput="this.value=this.value.toUpperCase()"><div class="hint">Mandatory per IT Act; use Passport No. for foreign nationals</div></div>
+        <div class="fg"><label class="flbl">Passport / CIN (if applicable)</label><input id="s-cin" placeholder="For body corporates / foreigners"></div>
+        <div class="fg"><label class="flbl">Email</label><input type="email" id="s-email" placeholder="member@example.com"></div>
+        <div class="fg"><label class="flbl">Phone</label><input type="tel" id="s-phone" placeholder="+91 98765 43210"></div>
+
+        <!-- Section: Address -->
+        <div class="sec-div"><i class="ti ti-map-pin"></i> Address (Sec. 88)</div>
+        <div class="fg full"><label class="flbl">Address Line 1 <span class="req">*</span></label><input id="s-addr1" placeholder="House / Flat No., Building Name, Street"></div>
+        <div class="fg full"><label class="flbl">Address Line 2</label><input id="s-addr2" placeholder="Area / Locality / Landmark"></div>
+        <div class="fg"><label class="flbl">City <span class="req">*</span></label><input id="s-city" placeholder="City"></div>
+        <div class="fg"><label class="flbl">State <span class="req">*</span></label><input id="s-state" placeholder="State"></div>
+        <div class="fg"><label class="flbl">PIN Code</label><input id="s-pin" placeholder="560001" maxlength="6"></div>
+        <div class="fg"><label class="flbl">Country</label><input id="s-country" value="India"></div>
+
+        <!-- Section: Shareholding -->
+        <div class="sec-div"><i class="ti ti-chart-donut"></i> Shareholding Details</div>
+        <div class="fg"><label class="flbl">Share Class <span class="req">*</span></label>
+          <select id="s-class" onchange="onClassChange()">
+            <option value="Equity Shares">Equity Shares</option>
+            <option value="Compulsorily Convertible Preference Shares (CCPS)">CCPS — Compulsorily Convertible Preference Shares</option>
+            <option value="Optionally Convertible Preference Shares (OCPS)">OCPS — Optionally Convertible Preference Shares</option>
+            <option value="Non-Convertible Preference Shares">Non-Convertible Preference Shares</option>
+            <option value="Compulsorily Convertible Debentures (CCD)">CCD — Compulsorily Convertible Debentures</option>
+            <option value="Optionally Convertible Debentures (OCD)">OCD — Optionally Convertible Debentures</option>
+            <option value="Non-Convertible Debentures (NCD)">NCD — Non-Convertible Debentures</option>
+            <option value="Warrants">Warrants</option>
+            <option value="ESOP Options">ESOP Options</option>
+            <option value="__custom__">Custom / Other…</option>
+          </select>
+        </div>
+        <div class="fg" id="customClassWrap" style="display:none"><label class="flbl">Custom Class Name <span class="req">*</span></label><input id="s-customClass" placeholder="e.g. Series A Preference Shares"></div>
+        <!-- Conversion box -->
+        <div class="fg full">
+          <div class="conv-box" id="convBox">
+            <div style="font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px"><i class="ti ti-arrows-exchange"></i> Conversion Details — Sec. 64, Companies Act 2013</div>
+            <div class="fgrid" style="padding:0;margin:0">
+              <div class="fg"><label class="flbl">Conversion Ratio <span class="req">*</span></label><input type="number" id="s-convRatio" value="1" min="0.0001" step="0.0001" placeholder="e.g. 1"><div class="hint">Equity shares issued per 1 instrument upon conversion</div></div>
+              <div class="fg"><label class="flbl">Conversion Trigger / Date</label><input id="s-convTrigger" placeholder="e.g. Next equity round / 31-Mar-2027"></div>
+              <div class="fg"><label class="flbl">Floor Price (₹)</label><input type="number" id="s-convFloor" placeholder="Optional" min="0"></div>
+              <div class="fg"><label class="flbl">Cap Price (₹)</label><input type="number" id="s-convCap" placeholder="Optional" min="0"></div>
+            </div>
+          </div>
+          <div class="nc-box" id="ncBox"><i class="ti ti-lock"></i> <strong>Non-convertible instrument</strong> — No conversion ratio required. This security will <em>not</em> be included in Fully Diluted (FD) cap table calculations.</div>
+        </div>
+        <div class="fg"><label class="flbl">No. of Shares <span class="req">*</span></label><input type="number" id="s-shares" placeholder="e.g. 1000" min="1"></div>
+        <div class="fg"><label class="flbl">Nominal Value per Share (₹)</label><input type="number" id="s-nomVal" placeholder="e.g. 10" value="10" min="0"></div>
+        <div class="fg"><label class="flbl">Amount Paid-up (₹)</label><input type="number" id="s-amtPaid" placeholder="Auto-calculated" min="0"><div class="hint">Leave blank to auto-calculate from shares × nominal value</div></div>
+        <div class="fg"><label class="flbl">Date of Becoming Member <span class="req">*</span></label><input type="date" id="s-dateEntry"></div>
+        <div class="fg"><label class="flbl">Distinctive Nos. From</label><input type="number" id="s-distFrom" placeholder="e.g. 1" min="1"></div>
+        <div class="fg"><label class="flbl">Distinctive Nos. To</label><input type="number" id="s-distTo" placeholder="e.g. 1000" min="1"></div>
+        <div class="fg"><label class="flbl">Total Consideration (₹)</label><input type="number" id="s-consideration" placeholder="Total consideration paid" min="0"></div>
+        <div class="fg"><label class="flbl">Mode of Acquisition</label>
+          <select id="s-mode">
+            <option>Subscription to MOA</option><option>Allotment — Board Resolution</option>
+            <option>Allotment — Rights Issue</option><option>Allotment — Bonus</option>
+            <option>Allotment — ESOP</option><option>Transfer (Sec. 56)</option>
+            <option>Transmission (Sec. 56)</option><option>Buyback (Sec. 68)</option>
+            <option>Conversion (Sec. 64)</option><option>Court / NCLT Order</option>
+          </select>
+        </div>
+        <div class="fg"><label class="flbl">Board / SR Resolution No.</label><input id="s-res" placeholder="e.g. BR/2024-25/001"></div>
+
+        <!-- Section: Bank / Demat -->
+        <div class="sec-div"><i class="ti ti-building-bank"></i> Bank &amp; Demat Details</div>
+        <div class="fg"><label class="flbl">Bank Account No.</label><input id="s-bank" placeholder="For dividend / buyback payments"></div>
+        <div class="fg"><label class="flbl">IFSC Code</label><input id="s-ifsc" placeholder="e.g. SBIN0001234" oninput="this.value=this.value.toUpperCase()"></div>
+        <div class="fg"><label class="flbl">Depository</label><select id="s-demat"><option value="">Physical (Certificated)</option><option>NSDL</option><option>CDSL</option></select></div>
+        <div class="fg"><label class="flbl">DP ID / Client ID</label><input id="s-dpid" placeholder="Only for demat holdings"></div>
+
+        <!-- Section: Remarks -->
+        <div class="sec-div"><i class="ti ti-notes"></i> Remarks</div>
+        <div class="fg full"><label class="flbl">Remarks / Notes</label><textarea id="s-remarks" rows="2" placeholder="Lock-in period, pledge, restrictions, special conditions, etc."></textarea></div>
+      </div>
+    </div>
+    <div class="m-foot">
+      <button class="btn btn-s" onclick="closeModal('modalMember')">Cancel</button>
+      <button class="btn btn-p" onclick="saveMember()"><i class="ti ti-check"></i> <span id="mbrSaveLabel">Register Member</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW MEMBER -->
+<div class="overlay" id="modalView">
+  <div class="modal">
+    <div class="m-head">
+      <div class="m-title"><i class="ti ti-id-badge"></i> Member Details</div>
+      <button class="ico-btn" onclick="closeModal('modalView')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="m-body" id="viewBody"></div>
+    <div class="m-foot">
+      <button class="btn btn-s" onclick="closeModal('modalView')">Close</button>
+      <button class="btn btn-p" id="viewEditBtn"><i class="ti ti-edit"></i> Edit Member</button>
+    </div>
+  </div>
+</div>
+
+<!-- RECORD CORPORATE ACTION -->
+<div class="overlay" id="modalTx">
+  <div class="modal" style="max-width:640px">
+    <div class="m-head">
+      <div class="m-title"><i class="ti ti-arrows-exchange"></i> Record Corporate Action</div>
+      <button class="ico-btn" onclick="closeModal('modalTx')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="m-body">
+      <div class="fgrid">
+        <div class="fg"><label class="flbl">Date of Action <span class="req">*</span></label><input type="date" id="tx-date"></div>
+        <div class="fg"><label class="flbl">Action Type <span class="req">*</span></label>
+          <select id="tx-type" onchange="onTxType()">
+            <option value="">— Select —</option>
+            <option value="Allotment">Allotment (Sec. 39)</option>
+            <option value="Transfer">Transfer (Sec. 56)</option>
+            <option value="Transmission">Transmission (Sec. 56)</option>
+            <option value="Buyback">Buyback (Sec. 68)</option>
+            <option value="Bonus Issue">Bonus Issue (Sec. 63)</option>
+            <option value="Rights Issue">Rights Issue (Sec. 62)</option>
+            <option value="ESOP Exercise">ESOP Exercise (Sec. 62(1)(b))</option>
+            <option value="Conversion">Conversion (Sec. 64)</option>
+            <option value="Forfeiture">Forfeiture (Sec. 54 / Articles)</option>
+            <option value="Sub-division">Sub-division (Sec. 61)</option>
+            <option value="Consolidation">Consolidation (Sec. 61)</option>
+            <option value="Reduction of Capital">Reduction of Capital (Sec. 66)</option>
+            <option value="Court/NCLT Order">Court / NCLT Order</option>
+            <option value="Other">Other Corporate Action</option>
+          </select>
+        </div>
+        <div class="fg"><label class="flbl">From (Transferor / Company)</label><input id="tx-from" placeholder="Seller name, or 'Company' for fresh issue"></div>
+        <div class="fg"><label class="flbl">To (Allottee / Transferee) <span class="req">*</span></label><input id="tx-to" placeholder="Buyer / allottee name"></div>
+        <div class="fg"><label class="flbl">Share Class</label>
+          <select id="tx-class">
+            <option value="Equity Shares">Equity Shares</option>
+            <option value="Compulsorily Convertible Preference Shares (CCPS)">CCPS</option>
+            <option value="Optionally Convertible Preference Shares (OCPS)">OCPS</option>
+            <option value="Non-Convertible Preference Shares">Non-Convertible Preference Shares</option>
+            <option value="Compulsorily Convertible Debentures (CCD)">CCD</option>
+            <option value="Optionally Convertible Debentures (OCD)">OCD</option>
+            <option value="Non-Convertible Debentures (NCD)">NCD</option>
+            <option value="Warrants">Warrants</option>
+            <option value="ESOP Options">ESOP Options</option>
+          </select>
+        </div>
+        <div class="fg"><label class="flbl">No. of Shares <span class="req">*</span></label><input type="number" id="tx-shares" placeholder="e.g. 500" min="1"></div>
+        <div class="fg"><label class="flbl">Price per Share (₹)</label><input type="number" id="tx-price" placeholder="e.g. 100" min="0"></div>
+        <div class="fg"><label class="flbl">Total Consideration (₹)</label><input type="number" id="tx-consid" placeholder="Auto-calculated or enter manually" min="0"></div>
+        <div class="fg"><label class="flbl">Board Resolution / Authority Ref.</label><input id="tx-auth" placeholder="e.g. BR/2024-25/007"></div>
+        <div class="fg"><label class="flbl">SH-4 Form No. (for Transfers)</label><input id="tx-sh4" placeholder="Transfer deed reference number"></div>
+        <div class="fg full"><label class="flbl">Remarks</label><textarea id="tx-remarks" rows="2" placeholder="Legal basis, conditions, NCLT order reference, etc."></textarea></div>
+        <div class="fg full" id="txAlertWrap" style="display:none"></div>
+      </div>
+    </div>
+    <div class="m-foot">
+      <button class="btn btn-s" onclick="closeModal('modalTx')">Cancel</button>
+      <button class="btn btn-p" onclick="saveTx()"><i class="ti ti-check"></i> Record Action</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM DELETE COMPANY -->
+<div class="overlay" id="modalDelCo">
+  <div class="modal modal-sm">
+    <div class="m-head"><div class="m-title" style="color:var(--red)"><i class="ti ti-alert-triangle"></i> Delete Company</div></div>
+    <div class="m-body">
+      <p style="font-size:14px;margin-bottom:14px">Permanently delete <strong id="delCoName">this company</strong> and all its data?</p>
+      <div class="alert a-danger" style="margin:0"><i class="ti ti-trash"></i><div>This action <strong>cannot be undone</strong>. All shareholders, corporate actions, and company data will be permanently erased from your browser.</div></div>
+    </div>
+    <div class="m-foot">
+      <button class="btn btn-s" onclick="closeModal('modalDelCo')">Cancel</button>
+      <button class="btn btn-p" style="background:var(--red)" onclick="execDeleteCo()"><i class="ti ti-trash"></i> Yes, Delete Everything</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"><div class="toast-inner" id="toastInner"></div></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ─────────────────────────────────────────────
+   STORAGE ENGINE — strict namespace isolation
+   Every key is prefixed sb:company:{id}:*
+   NEVER read from another company's prefix
+───────────────────────────────────────────── */
+const SK = {
+  companies : ()  => 'sb:companies',
+  info      : id  => `sb:company:${id}:info`,
+  sh        : id  => `sb:company:${id}:sh`,
+  tx        : id  => `sb:company:${id}:tx`,
+  folio     : id  => `sb:company:${id}:folio`,
+};
+
+function lsGet(key, fb = null) {
+  try { const v = localStorage.getItem(key); return v !== null ? JSON.parse(v) : fb; }
+  catch { return fb; }
+}
+function lsSet(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); return true; }
+  catch { toast('Storage full — please export and clear old data', 'danger'); return false; }
+}
+function lsDel(key) { try { localStorage.removeItem(key); } catch {} }
+
+/* ─────────────────────────────────────────────
+   APP STATE — one active company at a time
+───────────────────────────────────────────── */
+let CID = null;  // Active company ID — never mixed between companies
+
+const companies  = () => lsGet(SK.companies(), []);
+const coInfo     = ()  => lsGet(SK.info(CID), {});
+const getSH      = ()  => lsGet(SK.sh(CID), []);
+const getTX      = ()  => lsGet(SK.tx(CID), []);
+const getFolio   = ()  => lsGet(SK.folio(CID), 1);
+const putSH      = a   => lsSet(SK.sh(CID), a);
+const putTX      = a   => lsSet(SK.tx(CID), a);
+const putFolio   = n   => lsSet(SK.folio(CID), n);
+
+function nextFolio() {
+  const n = getFolio();
+  putFolio(n + 1);
+  return `F-${String(n).padStart(5, '0')}`;
+}
+
+/* ─────────────────────────────────────────────
+   INSTRUMENT CLASSIFICATION
+───────────────────────────────────────────── */
+const CONV    = new Set(['Compulsorily Convertible Preference Shares (CCPS)',
+                         'Optionally Convertible Preference Shares (OCPS)',
+                         'Compulsorily Convertible Debentures (CCD)',
+                         'Optionally Convertible Debentures (OCD)',
+                         'Warrants','ESOP Options']);
+const NON_CONV= new Set(['Non-Convertible Preference Shares',
+                         'Non-Convertible Debentures (NCD)']);
+const EQUITY  = new Set(['Equity Shares']);
+
+/* ─────────────────────────────────────────────
+   PAGINATION STATE
+───────────────────────────────────────────── */
+let mPage = 1;
+let mFiltered = [];
+
+/* ─────────────────────────────────────────────
+   EDITING STATE
+───────────────────────────────────────────── */
+let editMbrId = null;
+let editCoId  = null;
+let selColor  = '#1e3a8a';
+
+/* ─────────────────────────────────────────────
+   UI HELPERS
+───────────────────────────────────────────── */
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+let _toastTimer;
+function toast(msg, type = 'success') {
+  const icons = { success:'ti-circle-check', danger:'ti-alert-triangle', info:'ti-info-circle' };
+  document.getElementById('toastInner').innerHTML = `<i class="ti ${icons[type]||'ti-circle-check'}"></i> ${msg}`;
+  const el = document.getElementById('toast'); el.style.display = 'block';
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.style.display = 'none', 3500);
+}
+
+function esc(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showTab(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'mgt1')       renderMGT1();
+  if (name === 'captable')   renderCapTable();
+  if (name === 'dashboard')  renderDashboard();
+  if (name === 'members')  { mPage = 1; filterMembers(); refreshClassFilter(); }
+  if (name === 'transactions') { filterTx(); refreshTxFilter(); }
+}
+
+function badgeClass(cls) {
+  const m = {
+    'Equity Shares': 'b-blue',
+    'Compulsorily Convertible Preference Shares (CCPS)': 'b-purple',
+    'Optionally Convertible Preference Shares (OCPS)': 'b-purple',
+    'Non-Convertible Preference Shares': 'b-gray',
+    'Compulsorily Convertible Debentures (CCD)': 'b-amber',
+    'Optionally Convertible Debentures (OCD)': 'b-amber',
+    'Non-Convertible Debentures (NCD)': 'b-gray',
+    'Warrants': 'b-red',
+    'ESOP Options': 'b-green',
+  };
+  const short = {
+    'Compulsorily Convertible Preference Shares (CCPS)': 'CCPS',
+    'Optionally Convertible Preference Shares (OCPS)': 'OCPS',
+    'Non-Convertible Preference Shares': 'NC Pref',
+    'Compulsorily Convertible Debentures (CCD)': 'CCD',
+    'Optionally Convertible Debentures (OCD)': 'OCD',
+    'Non-Convertible Debentures (NCD)': 'NCD',
+  };
+  return `<span class="badge ${m[cls]||'b-gray'}">${esc(short[cls]||cls)}</span>`;
+}
+
+function statusBadge(s) {
+  if (s === 'Active') return `<span class="badge b-green"><i class="ti ti-circle-filled" style="font-size:8px"></i> Active</span>`;
+  return `<span class="badge b-gray"><i class="ti ti-circle-minus" style="font-size:8px"></i> Ceased</span>`;
+}
+
+const TX_BADGE = { Allotment:'b-blue', Transfer:'b-amber', Transmission:'b-purple',
+  Buyback:'b-red', 'Bonus Issue':'b-green', 'Rights Issue':'b-green',
+  'ESOP Exercise':'b-green', Conversion:'b-purple', Forfeiture:'b-red' };
+
+/* ─────────────────────────────────────────────
+   COMPANY PICKER
+───────────────────────────────────────────── */
+function renderPicker() {
+  const list = companies();
+  const grid = document.getElementById('coGrid');
+  const cards = list.map(c => {
+    const sh = lsGet(SK.sh(c.id), []);
+    const tx = lsGet(SK.tx(c.id), []);
+    const active = sh.filter(s => s.status === 'Active').length;
+    return `
+    <div class="co-card" style="--co-color:${esc(c.color||'#1e3a8a')}" onclick="selectCo('${c.id}')">
+      <div class="co-icon">${esc((c.name||'C')[0].toUpperCase())}</div>
+      <div class="co-name">${esc(c.name)}</div>
+      <div class="co-cin">${esc(c.cin||'CIN not set')}</div>
+      <div class="co-stats">
+        <div class="co-stat"><strong>${active}</strong>Active Members</div>
+        <div class="co-stat"><strong>${tx.length}</strong>Corp. Actions</div>
+        <div class="co-stat"><strong>${sh.length - active}</strong>Ceased</div>
+      </div>
+      <div class="co-actions">
+        <button class="ico-btn" title="Edit company details" onclick="event.stopPropagation();openEditCoById('${c.id}')"><i class="ti ti-edit"></i></button>
+      </div>
+    </div>`;
+  }).join('');
+  grid.innerHTML = cards + `
+    <div class="co-card co-new" onclick="openNewCo()">
+      <i class="ti ti-building-plus"></i>
+      <span>Add New Company</span>
+      <span style="font-size:11px;color:var(--xs)">Each company is fully isolated</span>
+    </div>`;
+}
+
+function selectCo(id) {
+  CID = id;
+  const info = lsGet(SK.info(id), {});
+  const color = info.color || '#1e3a8a';
+  const icon = document.getElementById('appIcon');
+  icon.style.background = color;
+  icon.textContent = (info.name || 'C')[0].toUpperCase();
+  document.getElementById('appCoName').textContent = info.name || '—';
+  document.getElementById('screenCompanies').style.display = 'none';
+  const app = document.getElementById('screenApp');
+  app.style.display = 'flex';
+  // Reset to dashboard tab
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-dashboard').classList.add('active');
+  document.querySelector('.tab').classList.add('active');
+  mPage = 1;
+  renderAll();
+}
+
+function goToPicker() {
+  CID = null;
+  document.getElementById('screenApp').style.display = 'none';
+  document.getElementById('screenCompanies').style.display = 'flex';
+  renderPicker();
+}
+
+/* ─────────────────────────────────────────────
+   COMPANY CREATE / EDIT
+───────────────────────────────────────────── */
+function setColor(c) {
+  selColor = c;
+  document.getElementById('co-color').value = c;
+  document.querySelectorAll('.swatch').forEach(el => {
+    const active = el.dataset.c === c;
+    el.classList.toggle('sel', active);
+    el.style.border = active ? `3px solid ${c}` : '3px solid transparent';
+  });
+}
+document.querySelectorAll('.swatch').forEach(el => el.addEventListener('click', () => setColor(el.dataset.c)));
+
+function resetCoForm() {
+  ['co-name','co-cin','co-address','co-authCap'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('co-incDate').value = '';
+  document.getElementById('co-nomVal').value = '10';
+  setColor('#1e3a8a');
+}
+
+function openNewCo() {
+  editCoId = null;
+  document.getElementById('coModalTitle').textContent = 'Add New Company';
+  document.getElementById('coSaveLabel').textContent = 'Create Company';
+  document.getElementById('coDeleteWrap').style.display = 'none';
+  resetCoForm();
+  openModal('modalCo');
+}
+
+function openEditCo() { if (CID) openEditCoById(CID); }
+
+function openEditCoById(id) {
+  editCoId = id;
+  const info = lsGet(SK.info(id), {});
+  document.getElementById('coModalTitle').textContent = 'Edit Company Details';
+  document.getElementById('coSaveLabel').textContent = 'Save Changes';
+  document.getElementById('coDeleteWrap').style.display = 'block';
+  document.getElementById('co-name').value = info.name || '';
+  document.getElementById('co-cin').value = info.cin || '';
+  document.getElementById('co-incDate').value = info.incDate || '';
+  document.getElementById('co-address').value = info.address || '';
+  document.getElementById('co-authCap').value = info.authCap || '';
+  document.getElementById('co-nomVal').value = info.nomValue || 10;
+  setColor(info.color || '#1e3a8a');
+  openModal('modalCo');
+}
+
+function saveCo() {
+  const name = document.getElementById('co-name').value.trim();
+  const cin  = document.getElementById('co-cin').value.trim().toUpperCase();
+  if (!name) { toast('Company name is required', 'danger'); return; }
+  if (!cin)  { toast('CIN is required', 'danger'); return; }
+
+  const id = editCoId || ('co_' + Date.now());
+  const existing = lsGet(SK.info(id), {});
+  const info = {
+    id, name, cin,
+    incDate   : document.getElementById('co-incDate').value,
+    address   : document.getElementById('co-address').value.trim(),
+    authCap   : document.getElementById('co-authCap').value,
+    nomValue  : parseFloat(document.getElementById('co-nomVal').value) || 10,
+    color     : document.getElementById('co-color').value || '#1e3a8a',
+    createdAt : existing.createdAt || new Date().toISOString(),
+    updatedAt : new Date().toISOString(),
+  };
+  lsSet(SK.info(id), info);
+
+  const list = companies();
+  const idx  = list.findIndex(c => c.id === id);
+  const summary = { id, name, cin, color: info.color };
+  if (idx >= 0) list[idx] = summary; else list.push(summary);
+  lsSet(SK.companies(), list);
+
+  closeModal('modalCo');
+  toast(editCoId ? `${name} updated` : `${name} created`);
+
+  // Refresh header if editing current company
+  if (CID === id) {
+    document.getElementById('appIcon').style.background = info.color;
+    document.getElementById('appIcon').textContent = name[0].toUpperCase();
+    document.getElementById('appCoName').textContent = name;
+  }
+  renderPicker();
+}
+
+function confirmDeleteCo() {
+  const info = lsGet(SK.info(editCoId), {});
+  document.getElementById('delCoName').textContent = info.name || 'this company';
+  openModal('modalDelCo');
+}
+
+function execDeleteCo() {
+  const id = editCoId;
+  const info = lsGet(SK.info(id), {});
+  [SK.info(id), SK.sh(id), SK.tx(id), SK.folio(id)].forEach(lsDel);
+  lsSet(SK.companies(), companies().filter(c => c.id !== id));
+  closeModal('modalDelCo');
+  closeModal('modalCo');
+  toast(`${info.name || 'Company'} deleted`);
+  if (CID === id) goToPicker();
+  else renderPicker();
+}
+
+/* ─────────────────────────────────────────────
+   MEMBER FORM LOGIC
+───────────────────────────────────────────── */
+function onClassChange() {
+  const v = document.getElementById('s-class').value;
+  document.getElementById('convBox').style.display       = CONV.has(v)     ? 'block' : 'none';
+  document.getElementById('ncBox').style.display         = NON_CONV.has(v) ? 'block' : 'none';
+  document.getElementById('customClassWrap').style.display = v === '__custom__' ? 'flex' : 'none';
+}
+
+// Auto-calc paid-up
+document.addEventListener('input', e => {
+  const id = e.target?.id;
+  if (id === 's-shares' || id === 's-nomVal') {
+    const aEl = document.getElementById('s-amtPaid');
+    if (!aEl._manual) {
+      const s = parseFloat(document.getElementById('s-shares').value) || 0;
+      const n = parseFloat(document.getElementById('s-nomVal').value) || 0;
+      if (s > 0 && n > 0) aEl.value = s * n;
+    }
+  }
+  if (id === 's-amtPaid') e.target._manual = true;
+  if (id === 'tx-shares' || id === 'tx-price') {
+    const s = parseFloat(document.getElementById('tx-shares').value) || 0;
+    const p = parseFloat(document.getElementById('tx-price').value) || 0;
+    if (s && p) document.getElementById('tx-consid').value = (s * p).toFixed(2);
+  }
+  if (id === 'co-cin') e.target.value = e.target.value.toUpperCase();
+});
+
+function openAddMember() {
+  editMbrId = null;
+  document.getElementById('mbrTitle').textContent = 'Add Member to Register';
+  document.getElementById('mbrSaveLabel').textContent = 'Register Member';
+  resetMbrForm();
+  openModal('modalMember');
+}
+
+function resetMbrForm() {
+  const fields = ['s-name','s-father','s-pan','s-cin','s-email','s-phone',
+    's-addr1','s-addr2','s-city','s-state','s-pin',
+    's-shares','s-amtPaid','s-distFrom','s-distTo',
+    's-consideration','s-res','s-bank','s-ifsc','s-dpid','s-remarks',
+    's-convTrigger','s-convFloor','s-convCap'];
+  fields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.value = ''; el._manual = false; }
+  });
+  document.getElementById('s-country').value = 'India';
+  document.getElementById('s-nomVal').value = '10';
+  document.getElementById('s-convRatio').value = '1';
+  document.getElementById('s-class').value = 'Equity Shares';
+  document.getElementById('s-natl').value = 'Indian';
+  document.getElementById('s-type').value = 'Individual';
+  document.getElementById('s-mode').value = 'Subscription to MOA';
+  document.getElementById('s-demat').value = '';
+  document.getElementById('s-dateEntry').value = new Date().toISOString().split('T')[0];
+  document.getElementById('convBox').style.display = 'none';
+  document.getElementById('ncBox').style.display = 'none';
+  document.getElementById('customClassWrap').style.display = 'none';
+}
+
+/* ─────────────────────────────────────────────
+   SAVE MEMBER
+───────────────────────────────────────────── */
+function saveMember() {
+  const name    = document.getElementById('s-name').value.trim();
+  const pan     = document.getElementById('s-pan').value.trim();
+  const natl    = document.getElementById('s-natl').value;
+  const addr1   = document.getElementById('s-addr1').value.trim();
+  const city    = document.getElementById('s-city').value.trim();
+  const state   = document.getElementById('s-state').value.trim();
+  const shares  = parseInt(document.getElementById('s-shares').value) || 0;
+  const dateEntry = document.getElementById('s-dateEntry').value;
+
+  // Validation
+  if (!name)      { toast('Member name is required', 'danger'); return; }
+  if (!pan)       { toast('PAN / Passport is required', 'danger'); return; }
+  if (natl === 'Indian' && !/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(pan))
+                  { toast('Invalid PAN format — must be like ABCDE1234F', 'danger'); return; }
+  if (!addr1 || !city || !state)
+                  { toast('Address (Line 1, City, State) is required', 'danger'); return; }
+  if (shares < 1) { toast('Number of shares must be at least 1', 'danger'); return; }
+  if (!dateEntry) { toast('Date of becoming member is required', 'danger'); return; }
+
+  const rawClass  = document.getElementById('s-class').value;
+  const shareClass = rawClass === '__custom__'
+    ? document.getElementById('s-customClass').value.trim()
+    : rawClass;
+  if (!shareClass) { toast('Share class name is required', 'danger'); return; }
+
+  const isConv    = CONV.has(shareClass);
+  const isNonConv = NON_CONV.has(shareClass);
+
+  const shList = getSH();
+  const existing = editMbrId ? shList.find(s => s.id === editMbrId) : null;
+
+  const nomVal = parseFloat(document.getElementById('s-nomVal').value) || 10;
+  const amtPaidEl = document.getElementById('s-amtPaid');
+  const amtPaid = amtPaidEl._manual && amtPaidEl.value
+    ? parseFloat(amtPaidEl.value)
+    : shares * nomVal;
+
+  const sh = {
+    id        : existing?.id || (Date.now() + Math.random()),
+    folio     : existing?.folio || nextFolio(),
+    name, pan, natl,
+    father    : document.getElementById('s-father').value.trim(),
+    nationality: natl,
+    type      : document.getElementById('s-type').value,
+    cin       : document.getElementById('s-cin').value.trim(),
+    email     : document.getElementById('s-email').value.trim(),
+    phone     : document.getElementById('s-phone').value.trim(),
+    addr1, addr2: document.getElementById('s-addr2').value.trim(),
+    city, state,
+    pin       : document.getElementById('s-pin').value.trim(),
+    country   : document.getElementById('s-country').value.trim() || 'India',
+    shareClass, shares, nomVal, amtPaid,
+    dateEntry,
+    distFrom  : document.getElementById('s-distFrom').value || null,
+    distTo    : document.getElementById('s-distTo').value || null,
+    consideration: parseFloat(document.getElementById('s-consideration').value) || null,
+    mode      : document.getElementById('s-mode').value,
+    resolution: document.getElementById('s-res').value.trim(),
+    bank      : document.getElementById('s-bank').value.trim(),
+    ifsc      : document.getElementById('s-ifsc').value.trim(),
+    demat     : document.getElementById('s-demat').value,
+    dpid      : document.getElementById('s-dpid').value.trim(),
+    remarks   : document.getElementById('s-remarks').value.trim(),
+    status    : existing?.status || 'Active',
+    isConvertible : isConv,
+    isNonConvertible: isNonConv,
+    convRatio : isConv ? (parseFloat(document.getElementById('s-convRatio').value) || 1) : null,
+    convTrigger: isConv ? document.getElementById('s-convTrigger').value : null,
+    convFloor : isConv ? (parseFloat(document.getElementById('s-convFloor').value) || null) : null,
+    convCap   : isConv ? (parseFloat(document.getElementById('s-convCap').value) || null) : null,
+    createdAt : existing?.createdAt || new Date().toISOString(),
+    updatedAt : new Date().toISOString(),
+    auditLog  : existing ? [...(existing.auditLog || [])] : [],
+  };
+
+  if (editMbrId) {
+    sh.auditLog.push({ ts: new Date().toISOString(), action: 'Member record updated', user: 'Admin' });
+    const idx = shList.findIndex(s => s.id === editMbrId);
+    if (idx >= 0) shList[idx] = sh;
+    toast(`Record updated — ${name}`);
+  } else {
+    sh.auditLog.push({ ts: new Date().toISOString(), action: 'Member registered', user: 'Admin' });
+    shList.push(sh);
+    toast(`${name} registered (${sh.folio})`);
+  }
+
+  putSH(shList);
+  closeModal('modalMember');
+  resetMbrForm();
+  renderAll();
+}
+
+/* ─────────────────────────────────────────────
+   EDIT / VIEW / CEASE MEMBER
+───────────────────────────────────────────── */
+function editMember(id) {
+  const sh = getSH().find(s => s.id === id);
+  if (!sh) return;
+  editMbrId = id;
+  document.getElementById('mbrTitle').textContent = 'Edit Member Record';
+  document.getElementById('mbrSaveLabel').textContent = 'Save Changes';
+
+  const set = (fid, val) => {
+    const el = document.getElementById(fid);
+    if (el) { el.value = val ?? ''; el._manual = false; }
+  };
+  set('s-name', sh.name); set('s-father', sh.father); set('s-pan', sh.pan); set('s-cin', sh.cin);
+  set('s-email', sh.email); set('s-phone', sh.phone);
+  set('s-addr1', sh.addr1); set('s-addr2', sh.addr2);
+  set('s-city', sh.city); set('s-state', sh.state);
+  set('s-pin', sh.pin); set('s-country', sh.country || 'India');
+  set('s-shares', sh.shares); set('s-nomVal', sh.nomVal);
+  const aEl = document.getElementById('s-amtPaid');
+  aEl.value = sh.amtPaid; aEl._manual = true;
+  set('s-distFrom', sh.distFrom); set('s-distTo', sh.distTo);
+  set('s-consideration', sh.consideration); set('s-res', sh.resolution);
+  set('s-bank', sh.bank); set('s-ifsc', sh.ifsc);
+  set('s-dpid', sh.dpid); set('s-remarks', sh.remarks);
+  set('s-convRatio', sh.convRatio ?? 1); set('s-convTrigger', sh.convTrigger);
+  set('s-convFloor', sh.convFloor); set('s-convCap', sh.convCap);
+  set('s-dateEntry', sh.dateEntry);
+  document.getElementById('s-natl').value  = sh.nationality || 'Indian';
+  document.getElementById('s-type').value  = sh.type || 'Individual';
+  document.getElementById('s-mode').value  = sh.mode || 'Subscription to MOA';
+  document.getElementById('s-demat').value = sh.demat || '';
+
+  const knownClasses = ['Equity Shares',
+    'Compulsorily Convertible Preference Shares (CCPS)',
+    'Optionally Convertible Preference Shares (OCPS)',
+    'Non-Convertible Preference Shares',
+    'Compulsorily Convertible Debentures (CCD)',
+    'Optionally Convertible Debentures (OCD)',
+    'Non-Convertible Debentures (NCD)', 'Warrants', 'ESOP Options'];
+
+  if (knownClasses.includes(sh.shareClass)) {
+    document.getElementById('s-class').value = sh.shareClass;
+    document.getElementById('customClassWrap').style.display = 'none';
+  } else {
+    document.getElementById('s-class').value = '__custom__';
+    set('s-customClass', sh.shareClass);
+    document.getElementById('customClassWrap').style.display = 'flex';
+  }
+  onClassChange();
+  openModal('modalMember');
+}
+
+function viewMember(id) {
+  const sh = getSH().find(s => s.id === id);
+  if (!sh) return;
+
+  const convHtml = sh.isConvertible ? `
+    <div style="background:var(--blue-bg);border:1px solid var(--blue-b);border-radius:var(--r6);padding:12px;margin-top:12px;font-size:12px;color:var(--blue)">
+      <div style="font-weight:700;margin-bottom:6px"><i class="ti ti-arrows-exchange"></i> Conversion Details (Sec. 64)</div>
+      <div>Ratio: <strong>${sh.convRatio || 1}:1</strong> equity share per instrument on conversion</div>
+      ${sh.convTrigger ? `<div>Trigger: ${esc(sh.convTrigger)}</div>` : ''}
+      ${sh.convFloor   ? `<div>Floor Price: ₹${sh.convFloor}</div>` : ''}
+      ${sh.convCap     ? `<div>Cap Price: ₹${sh.convCap}</div>` : ''}
+      <div style="margin-top:6px;font-weight:600">FD Equivalent: ${((sh.shares || 0) * (sh.convRatio || 1)).toLocaleString('en-IN')} equity shares</div>
+    </div>` : sh.isNonConvertible ? `
+    <div style="background:var(--amber-bg);border:1px solid var(--amber-b);border-radius:var(--r6);padding:10px;margin-top:10px;font-size:12px;color:var(--amber)">
+      <i class="ti ti-lock"></i> Non-convertible instrument — excluded from FD calculations.
+    </div>` : '';
+
+  const audit = (sh.auditLog || []).slice().reverse().map(a =>
+    `<div class="audit-row">
+       <div style="font-weight:600">${esc(a.action)}</div>
+       <div style="color:var(--muted);font-size:11px">${new Date(a.ts).toLocaleString('en-IN')} — ${esc(a.user)}</div>
+     </div>`
+  ).join('') || '<div style="color:var(--xs);font-size:12px">No audit history.</div>';
+
+  document.getElementById('viewBody').innerHTML = `
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+      <div style="width:48px;height:48px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;font-weight:700;flex-shrink:0">${esc(sh.name[0])}</div>
+      <div style="flex:1">
+        <div style="font-size:16px;font-weight:700">${esc(sh.name)}</div>
+        <div style="font-size:12px;color:var(--muted)">${esc(sh.folio)} · ${esc(sh.type)} · ${esc(sh.nationality)}</div>
+        <div style="font-size:11px;color:var(--xs)">Last updated: ${sh.updatedAt ? new Date(sh.updatedAt).toLocaleString('en-IN') : '—'}</div>
+      </div>
+      <div>${statusBadge(sh.status)}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;margin-bottom:14px">
+      <div><span style="color:var(--muted)">PAN: </span><strong style="font-family:monospace">${esc(sh.pan||'—')}</strong></div>
+      <div><span style="color:var(--muted)">Email: </span>${esc(sh.email||'—')}</div>
+      <div><span style="color:var(--muted)">Phone: </span>${esc(sh.phone||'—')}</div>
+      <div><span style="color:var(--muted)">Address: </span>${esc([sh.addr1,sh.city,sh.state,sh.pin].filter(Boolean).join(', '))}</div>
+      <div><span style="color:var(--muted)">Share Class: </span>${badgeClass(sh.shareClass)}</div>
+      <div><span style="color:var(--muted)">Shares: </span><strong>${(sh.shares||0).toLocaleString('en-IN')}</strong></div>
+      <div><span style="color:var(--muted)">Nominal Value: </span>₹${sh.nomVal}</div>
+      <div><span style="color:var(--muted)">Paid-up: </span>₹${(sh.amtPaid||0).toLocaleString('en-IN')}</div>
+      <div><span style="color:var(--muted)">Date of Entry: </span>${esc(sh.dateEntry||'—')}</div>
+      <div><span style="color:var(--muted)">Mode: </span>${esc(sh.mode||'—')}</div>
+      ${sh.resolution ? `<div style="grid-column:1/-1"><span style="color:var(--muted)">Resolution: </span>${esc(sh.resolution)}</div>` : ''}
+      ${sh.remarks    ? `<div style="grid-column:1/-1"><span style="color:var(--muted)">Remarks: </span>${esc(sh.remarks)}</div>` : ''}
+    </div>
+    ${convHtml}
+    <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px"><i class="ti ti-history"></i> Audit Trail</div>
+      ${audit}
+    </div>`;
+
+  document.getElementById('viewEditBtn').onclick = () => {
+    closeModal('modalView');
+    editMember(id);
+  };
+  openModal('modalView');
+}
+
+function ceaseMember(id) {
+  const shList = getSH();
+  const sh = shList.find(s => s.id === id);
+  if (!sh) return;
+  if (!confirm(`Mark "${sh.name}" as Ceased? This records that they are no longer a member of the company.`)) return;
+  sh.status = 'Ceased';
+  sh.updatedAt = new Date().toISOString();
+  (sh.auditLog = sh.auditLog || []).push({ ts: new Date().toISOString(), action: 'Member ceased', user: 'Admin' });
+  putSH(shList);
+  renderAll();
+  toast(`${sh.name} marked as Ceased`);
+}
+
+/* ─────────────────────────────────────────────
+   MEMBERS TABLE WITH PAGINATION
+───────────────────────────────────────────── */
+function refreshClassFilter() {
+  const classes = [...new Set(getSH().map(s => s.shareClass))];
+  const el = document.getElementById('mFilterClass');
+  const cur = el.value;
+  el.innerHTML = '<option value="">All share classes</option>' +
+    classes.map(c => `<option value="${esc(c)}"${c===cur?' selected':''}>${esc(c)}</option>`).join('');
+}
+
+function filterMembers() {
+  const q    = (document.getElementById('mSearch').value || '').toLowerCase();
+  const cls  = document.getElementById('mFilterClass').value;
+  const stat = document.getElementById('mFilterStatus').value;
+  mFiltered = getSH().filter(s =>
+    (!q   || s.name.toLowerCase().includes(q) || s.folio.toLowerCase().includes(q) || (s.pan||'').toLowerCase().includes(q)) &&
+    (!cls  || s.shareClass === cls) &&
+    (!stat || s.status === stat)
+  );
+  mPage = 1;
+  renderMembersTable();
+}
+
+function renderMembersTable() {
+  const pgSize = parseInt(document.getElementById('mPageSize').value) || 25;
+  const total  = mFiltered.length;
+  const pages  = Math.max(1, Math.ceil(total / pgSize));
+  if (mPage > pages) mPage = pages;
+  const slice  = mFiltered.slice((mPage - 1) * pgSize, mPage * pgSize);
+
+  const tbody = document.getElementById('mBody');
+  if (!total) {
+    tbody.innerHTML = `<tr><td colspan="11"><div class="empty"><i class="ti ti-users"></i><p>No members match your filters.</p></div></td></tr>`;
+    document.getElementById('mPagination').innerHTML = '';
+    return;
+  }
+
+  tbody.innerHTML = slice.map(s => `
+    <tr>
+      <td><span class="folio">${esc(s.folio)}</span></td>
+      <td><strong>${esc(s.name)}</strong><div style="font-size:11px;color:var(--muted)">${esc(s.type)}</div></td>
+      <td style="font-size:12px;color:var(--muted);max-width:140px">${esc([s.addr1,s.city,s.state].filter(Boolean).join(', '))}</td>
+      <td><span style="font-family:monospace;font-size:12px">${esc(s.pan||'—')}</span></td>
+      <td>${badgeClass(s.shareClass)}</td>
+      <td><strong>${(s.shares||0).toLocaleString('en-IN')}</strong></td>
+      <td>₹${s.nomVal||10}</td>
+      <td>₹${(s.amtPaid||0).toLocaleString('en-IN')}</td>
+      <td style="font-size:12px">${esc(s.dateEntry||'—')}</td>
+      <td>${statusBadge(s.status)}</td>
+      <td style="text-align:center;white-space:nowrap">
+        <button class="ico-btn" onclick="viewMember(${s.id})" title="View details"><i class="ti ti-eye"></i></button>
+        <button class="ico-btn" onclick="editMember(${s.id})" title="Edit record"><i class="ti ti-edit"></i></button>
+        <button class="ico-btn red" onclick="ceaseMember(${s.id})" title="Cease member"><i class="ti ti-user-minus"></i></button>
+      </td>
+    </tr>`).join('');
+
+  // Pagination controls
+  const startR = (mPage - 1) * pgSize + 1;
+  const endR   = Math.min(mPage * pgSize, total);
+  let pgHtml = `<span class="pg-info">Showing ${startR}–${endR} of ${total} members</span>`;
+  pgHtml += `<button class="pg-btn" ${mPage===1?'disabled':''} onclick="gotoPage(1)"><i class="ti ti-chevrons-left"></i></button>`;
+  pgHtml += `<button class="pg-btn" ${mPage===1?'disabled':''} onclick="gotoPage(${mPage-1})"><i class="ti ti-chevron-left"></i></button>`;
+  const startP = Math.max(1, mPage - 2);
+  const endP   = Math.min(pages, mPage + 2);
+  for (let p = startP; p <= endP; p++) {
+    pgHtml += `<button class="pg-btn${p===mPage?' active':''}" onclick="gotoPage(${p})">${p}</button>`;
+  }
+  pgHtml += `<button class="pg-btn" ${mPage===pages?'disabled':''} onclick="gotoPage(${mPage+1})"><i class="ti ti-chevron-right"></i></button>`;
+  pgHtml += `<button class="pg-btn" ${mPage===pages?'disabled':''} onclick="gotoPage(${pages})"><i class="ti ti-chevrons-right"></i></button>`;
+  document.getElementById('mPagination').innerHTML = pgHtml;
+}
+
+function gotoPage(p) { mPage = p; renderMembersTable(); }
+
+/* ─────────────────────────────────────────────
+   TRANSACTIONS
+───────────────────────────────────────────── */
+const TX_ALERTS = {
+  'Transfer':           { cls:'a-info',   msg:'<strong>Sec. 56:</strong> Instrument of transfer (Form SH-4) must be duly stamped and executed. Entry in register within 60 days of execution.' },
+  'Transmission':       { cls:'a-info',   msg:'<strong>Sec. 56(2):</strong> Transmission on death — Form SH-4 not required. Obtain succession certificate / probate / nomination proof. Register on application by legal heir or nominee.' },
+  'Buyback':            { cls:'a-warn',   msg:'<strong>Sec. 68:</strong> Buyback is limited to 25% of paid-up capital and free reserves in any financial year. Board resolution (up to 10%) or special resolution (beyond 10%) required.' },
+  'Bonus Issue':        { cls:'a-info',   msg:'<strong>Sec. 63:</strong> Bonus shares may be issued from free reserves, securities premium account or capital redemption reserve. No payment by shareholders.' },
+  'Forfeiture':         { cls:'a-warn',   msg:'<strong>Table F / Articles:</strong> Prior notice must be served on the defaulting member. Forfeited shares may be reissued at not less than the amount already received.' },
+  'Reduction of Capital':{ cls:'a-warn', msg:'<strong>Sec. 66:</strong> Requires NCLT confirmation by order. Notice to creditors and publication in Official Gazette required.' },
+  'Sub-division':       { cls:'a-info',   msg:'<strong>Sec. 61:</strong> Requires ordinary resolution in general meeting. Distinctive numbers and nominal value change accordingly.' },
+  'Consolidation':      { cls:'a-info',   msg:'<strong>Sec. 61:</strong> Requires ordinary resolution in general meeting. Results in fewer shares of higher nominal value.' },
+};
+
+function onTxType() {
+  const t = document.getElementById('tx-type').value;
+  const wrap = document.getElementById('txAlertWrap');
+  const a = TX_ALERTS[t];
+  if (a) {
+    wrap.innerHTML = `<div class="alert ${a.cls}" style="margin:0;font-size:12px"><i class="ti ti-info-circle"></i><div>${a.msg}</div></div>`;
+    wrap.style.display = 'block';
+  } else {
+    wrap.style.display = 'none';
+  }
+}
+
+function refreshTxFilter() {
+  const types = [...new Set(getTX().map(t => t.type))];
+  const el = document.getElementById('tFilterType');
+  el.innerHTML = '<option value="">All action types</option>' +
+    types.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
+}
+
+function filterTx() {
+  const q = (document.getElementById('tSearch').value || '').toLowerCase();
+  const tf = document.getElementById('tFilterType').value;
+  const filtered = getTX().filter(t =>
+    (!q  || t.type.toLowerCase().includes(q) || t.to.toLowerCase().includes(q) || (t.from||'').toLowerCase().includes(q)) &&
+    (!tf || t.type === tf)
+  ).sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  const tbody = document.getElementById('tBody');
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty"><i class="ti ti-arrows-exchange"></i><p>No corporate actions recorded.</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = filtered.map(t => `
+    <tr>
+      <td style="font-size:12px;white-space:nowrap">${esc(t.date)}</td>
+      <td><span class="badge ${TX_BADGE[t.type]||'b-gray'}">${esc(t.type)}</span></td>
+      <td style="font-size:12px">${esc(t.from||'—')}</td>
+      <td style="font-weight:500">${esc(t.to)}</td>
+      <td>${badgeClass(t.shareClass)}</td>
+      <td><strong>${(t.shares||0).toLocaleString('en-IN')}</strong></td>
+      <td style="font-size:12px">${t.consideration ? '₹'+t.consideration.toLocaleString('en-IN') : '—'}</td>
+      <td style="font-size:11px;color:var(--muted)">${esc(t.authority||'—')}</td>
+      <td style="font-size:12px;color:var(--muted);max-width:130px">${esc(t.remarks||'—')}</td>
+    </tr>`).join('');
+}
+
+function saveTx() {
+  const date   = document.getElementById('tx-date').value;
+  const type   = document.getElementById('tx-type').value;
+  const to     = document.getElementById('tx-to').value.trim();
+  const shares = parseInt(document.getElementById('tx-shares').value) || 0;
+  if (!date)         { toast('Date is required', 'danger'); return; }
+  if (!type)         { toast('Action type is required', 'danger'); return; }
+  if (!to)           { toast('Allottee / Transferee name is required', 'danger'); return; }
+  if (shares < 1)    { toast('Number of shares must be at least 1', 'danger'); return; }
+
+  const list = getTX();
+  list.push({
+    id          : Date.now() + Math.random(),
+    date, type,
+    from        : document.getElementById('tx-from').value.trim() || 'Company',
+    to,
+    shareClass  : document.getElementById('tx-class').value,
+    shares,
+    price       : parseFloat(document.getElementById('tx-price').value) || null,
+    consideration: parseFloat(document.getElementById('tx-consid').value) || null,
+    authority   : document.getElementById('tx-auth').value.trim(),
+    sh4         : document.getElementById('tx-sh4').value.trim(),
+    remarks     : document.getElementById('tx-remarks').value.trim(),
+    recordedAt  : new Date().toISOString(),
+  });
+  putTX(list);
+  closeModal('modalTx');
+  resetTxForm();
+  renderAll();
+  toast(`"${type}" action recorded`);
+}
+
+function resetTxForm() {
+  ['tx-date','tx-from','tx-to','tx-shares','tx-price','tx-consid','tx-auth','tx-sh4','tx-remarks'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('tx-type').value  = '';
+  document.getElementById('tx-class').value = 'Equity Shares';
+  document.getElementById('txAlertWrap').style.display = 'none';
+  document.getElementById('tx-date').value = new Date().toISOString().split('T')[0];
+}
+
+/* ─────────────────────────────────────────────
+   DASHBOARD
+───────────────────────────────────────────── */
+function renderDashboard() {
+  const all    = getSH();
+  const active = all.filter(s => s.status === 'Active');
+  const txList = getTX();
+  const paidUp = active.reduce((a, s) => a + (s.amtPaid || 0), 0);
+  const classes = [...new Set(active.map(s => s.shareClass))];
+
+  document.getElementById('s-m').textContent  = active.length.toLocaleString('en-IN');
+  document.getElementById('s-c').textContent  = '₹' + paidUp.toLocaleString('en-IN');
+  document.getElementById('s-cl').textContent = classes.length;
+  document.getElementById('s-a').textContent  = txList.length.toLocaleString('en-IN');
+
+  // Class breakdown
+  const classData = {};
+  active.forEach(s => { classData[s.shareClass] = (classData[s.shareClass] || 0) + s.shares; });
+  const totalAll = Object.values(classData).reduce((a, b) => a + b, 0) || 1;
+  const COLORS = ['#1e3a8a','#16a34a','#9333ea','#c2410c','#0e7490','#b45309','#be185d','#374151'];
+
+  const cd = document.getElementById('dashClasses');
+  if (!Object.keys(classData).length) {
+    cd.innerHTML = `<div class="empty"><i class="ti ti-chart-pie"></i><p>No shareholders yet.</p></div>`;
+  } else {
+    cd.innerHTML = Object.entries(classData).map(([cls, cnt], i) => `
+      <div style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+          <span>${esc(cls)}</span>
+          <span><strong>${cnt.toLocaleString('en-IN')}</strong> <span style="color:var(--muted)">(${(cnt/totalAll*100).toFixed(1)}%)</span></span>
+        </div>
+        <div class="bar"><div class="bar-fill" style="width:${(cnt/totalAll*100).toFixed(1)}%;background:${COLORS[i % COLORS.length]}"></div></div>
+      </div>`).join('');
+  }
+
+  // Recent activity
+  const recent = getTX().slice(-6).reverse();
+  const ral = document.getElementById('dashActivity');
+  ral.innerHTML = recent.length ? recent.map(t => `
+    <li class="tl-item">
+      <div class="tl-date">${esc(t.date)}</div>
+      <div class="tl-title">${esc(t.type)} — ${(t.shares||0).toLocaleString('en-IN')} shares</div>
+      <div class="tl-detail">${esc(t.to)} ${t.from && t.from !== 'Company' ? `← ${esc(t.from)}` : ''} · ${esc(t.shareClass)}</div>
+    </li>`).join('')
+    : '<li style="color:var(--xs);font-size:12px;padding-left:16px">No activity yet.</li>';
+}
+
+/* ─────────────────────────────────────────────
+   MGT-1 EXTRACT
+───────────────────────────────────────────── */
+function renderMGT1() {
+  const info   = coInfo();
+  const active = getSH().filter(s => s.status === 'Active');
+  const el     = document.getElementById('mgt1Content');
+  if (!active.length) {
+    el.innerHTML = `<div class="empty"><i class="ti ti-file-description"></i><p>No active members to display.</p></div>`;
+    return;
+  }
+  const byClass = {};
+  active.forEach(s => { (byClass[s.shareClass] = byClass[s.shareClass] || []).push(s); });
+
+  el.innerHTML = `
+    <div style="text-align:center;margin-bottom:24px;padding-bottom:18px;border-bottom:2px solid var(--border)">
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px">Form MGT-1</div>
+      <div style="font-size:22px;font-weight:800;letter-spacing:.5px">REGISTER OF MEMBERS</div>
+      <div style="font-size:12px;color:var(--muted);max-width:520px;margin:6px auto 0">[Pursuant to Section 88 of the Companies Act, 2013 read with Rule 3 of the Companies (Management and Administration) Rules, 2014]</div>
+      <div style="margin-top:16px;font-size:13px;display:grid;grid-template-columns:auto 1fr;gap:5px 16px;max-width:540px;margin-left:auto;margin-right:auto;text-align:left">
+        <span style="color:var(--muted)">Name of Company:</span><strong>${esc(info.name||'—')}</strong>
+        <span style="color:var(--muted)">CIN:</span><strong style="font-family:monospace">${esc(info.cin||'—')}</strong>
+        <span style="color:var(--muted)">Registered Office:</span><span>${esc(info.address||'—')}</span>
+        <span style="color:var(--muted)">Date of Incorporation:</span><span>${esc(info.incDate||'—')}</span>
+        <span style="color:var(--muted)">Authorised Capital:</span><strong>${info.authCap ? '₹'+Number(info.authCap).toLocaleString('en-IN') : '—'}</strong>
+      </div>
+    </div>
+    ${Object.entries(byClass).map(([cls, members]) => {
+      const clsTotal   = members.reduce((a, m) => a + m.shares, 0);
+      const clsPaidUp  = members.reduce((a, m) => a + m.amtPaid, 0);
+      return `
+      <div style="margin-bottom:30px">
+        <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:10px;padding:8px 14px;background:var(--accent-l);border-radius:var(--r6)">
+          ${esc(cls)} — ${clsTotal.toLocaleString('en-IN')} shares
+        </div>
+        <div class="tbl-wrap">
+          <table style="min-width:unset">
+            <thead><tr>
+              <th>Sr.</th><th>Folio No.</th><th>Name of Member</th><th>Address</th>
+              <th>PAN / Passport</th><th>Date of Entry</th><th>Dist. From</th><th>Dist. To</th>
+              <th>No. of Shares</th><th>Nom. Value (₹)</th><th>Paid-up (₹)</th><th>Mode of Acquisition</th>
+            </tr></thead>
+            <tbody>
+              ${members.map((s, i) => `
+                <tr>
+                  <td>${i + 1}</td>
+                  <td><span class="folio">${esc(s.folio)}</span></td>
+                  <td>
+                    <strong>${esc(s.name)}</strong>
+                    ${s.father ? `<div style="font-size:11px;color:var(--muted)">S/o D/o W/o ${esc(s.father)}</div>` : ''}
+                  </td>
+                  <td style="font-size:11px">${esc([s.addr1,s.addr2,s.city,s.state,s.pin,s.country].filter(Boolean).join(', '))}</td>
+                  <td style="font-family:monospace;font-size:12px">${esc(s.pan||'—')}</td>
+                  <td style="font-size:12px;white-space:nowrap">${esc(s.dateEntry||'—')}</td>
+                  <td style="font-size:12px">${esc(s.distFrom||'—')}</td>
+                  <td style="font-size:12px">${esc(s.distTo||'—')}</td>
+                  <td><strong>${(s.shares||0).toLocaleString('en-IN')}</strong></td>
+                  <td>₹${s.nomVal||10}</td>
+                  <td>₹${(s.amtPaid||0).toLocaleString('en-IN')}</td>
+                  <td style="font-size:12px">${esc(s.mode||'—')}</td>
+                </tr>`).join('')}
+              <tr style="font-weight:700;background:#f8f9fc">
+                <td colspan="8" style="text-align:right;font-size:12px">Sub-total (${esc(cls)}):</td>
+                <td>${clsTotal.toLocaleString('en-IN')}</td>
+                <td>—</td>
+                <td>₹${clsPaidUp.toLocaleString('en-IN')}</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+    }).join('')}
+    <div style="font-size:11px;color:var(--xs);padding-top:12px;border-top:1px solid var(--border);margin-top:8px">
+      Register maintained at Registered Office of the Company · Extract generated: ${new Date().toLocaleString('en-IN')} ·
+      Companies Act, 2013 — Sec. 88 r/w Rule 3, Companies (Management &amp; Administration) Rules, 2014
+    </div>`;
+}
+
+/* ─────────────────────────────────────────────
+   CAP TABLE
+───────────────────────────────────────────── */
+function renderCapTable() {
+  const showFD = document.getElementById('fdToggle').checked;
+  const active = getSH().filter(s => s.status === 'Active');
+
+  const totalEquity = active.filter(s => EQUITY.has(s.shareClass)).reduce((a, s) => a + s.shares, 0);
+  const totalConvFD = active.filter(s => s.isConvertible).reduce((a, s) => a + s.shares * (s.convRatio || 1), 0);
+  const totalFD     = totalEquity + totalConvFD;
+
+  document.getElementById('capStats').innerHTML = `
+    <div class="stat"><div class="stat-lbl">Equity Shares</div><div class="stat-val">${totalEquity.toLocaleString('en-IN')}</div></div>
+    <div class="stat"><div class="stat-lbl">Fully Diluted</div><div class="stat-val">${totalFD.toLocaleString('en-IN')}</div><div class="stat-sub">Incl. convertibles</div></div>
+    <div class="stat"><div class="stat-lbl">Active Members</div><div class="stat-val">${active.length}</div></div>
+    <div class="stat"><div class="stat-lbl">Share Classes</div><div class="stat-val">${[...new Set(active.map(s=>s.shareClass))].length}</div></div>`;
+
+  const tbody = document.getElementById('capBody');
+  if (!active.length) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty"><i class="ti ti-chart-pie"></i><p>Add shareholders to view cap table.</p></div></td></tr>`;
+    return;
+  }
+
+  const D  = totalEquity || 1;
+  const FD = totalFD || 1;
+  const sorted = [...active].sort((a, b) => {
+    const ae = EQUITY.has(a.shareClass) ? a.shares : 0;
+    const be = EQUITY.has(b.shareClass) ? b.shares : 0;
+    return be - ae;
+  });
+
+  tbody.innerHTML = sorted.map((s, i) => {
+    const isEq     = EQUITY.has(s.shareClass);
+    const pct      = isEq ? s.shares / D * 100 : 0;
+    const fdShares = s.isConvertible ? s.shares * (s.convRatio || 1) : (isEq ? s.shares : 0);
+    const fdPct    = fdShares > 0 ? fdShares / FD * 100 : 0;
+    return `<tr>
+      <td style="color:var(--muted)">${i + 1}</td>
+      <td><strong>${esc(s.name)}</strong><div style="font-size:11px;color:var(--muted)">${esc(s.folio)}</div></td>
+      <td><span class="badge b-gray" style="font-size:11px">${esc(s.type)}</span></td>
+      <td>${badgeClass(s.shareClass)}</td>
+      <td><strong>${(s.shares||0).toLocaleString('en-IN')}</strong></td>
+      <td style="font-size:13px;font-weight:700">${isEq ? pct.toFixed(2)+'%' : '—'}</td>
+      <td style="color:${s.isConvertible?'var(--accent)':'var(--muted)'}">${fdShares > 0 ? fdShares.toLocaleString('en-IN') : '—'}</td>
+      <td style="font-weight:${showFD ? '700' : '400'};color:${showFD && fdShares > 0 ? 'var(--text)' : 'var(--muted)'}">${fdShares > 0 ? fdPct.toFixed(2)+'%' : '—'}</td>
+      <td style="min-width:90px">${isEq
+        ? `<div class="bar"><div class="bar-fill" style="width:${Math.min(pct,100).toFixed(2)}%"></div></div>`
+        : `<span style="font-size:11px;color:var(--xs)">Non-equity</span>`}
+      </td>
+    </tr>`;
+  }).join('');
+
+  tbody.innerHTML += `
+    <tr style="font-weight:700;background:#f8f9fc;border-top:2px solid var(--border)">
+      <td colspan="4" style="font-weight:700">Grand Total</td>
+      <td>${active.reduce((a,s)=>a+s.shares,0).toLocaleString('en-IN')}</td>
+      <td>100.00%</td>
+      <td>${totalFD.toLocaleString('en-IN')}</td>
+      <td>100.00%</td>
+      <td></td>
+    </tr>`;
+}
+
+/* ─────────────────────────────────────────────
+   EXPORTS
+───────────────────────────────────────────── */
+function downloadCSV(rows, filename) {
+  const csv = rows.map(r => r.map(c => `"${String(c ?? '').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = filename;
+  a.click();
+  toast(`Exported: ${filename}`);
+}
+
+function exportMembersCSV() {
+  const info = coInfo();
+  const rows = [
+    [`Form MGT-1 — Register of Members`],
+    [`Company: ${info.name||''}`],
+    [`CIN: ${info.cin||''}`],
+    [`Date Generated: ${new Date().toLocaleString('en-IN')}`],
+    [],
+    ['Folio No.','Full Name','Father/Spouse','PAN','Category','Nationality',
+     'Address','Share Class','No. of Shares','Nominal Value (₹)',
+     'Amount Paid-up (₹)','Date of Entry','Mode of Acquisition','Status','Remarks']
+  ];
+  getSH().forEach(s => rows.push([
+    s.folio, s.name, s.father, s.pan, s.type, s.nationality,
+    [s.addr1, s.addr2, s.city, s.state, s.pin, s.country].filter(Boolean).join(', '),
+    s.shareClass, s.shares, s.nomVal, s.amtPaid, s.dateEntry, s.mode, s.status, s.remarks
+  ]));
+  downloadCSV(rows, `MGT1_Register_${(info.name||'Company').replace(/\s+/g,'_')}.csv`);
+}
+
+function exportTxCSV() {
+  const info = coInfo();
+  const rows = [
+    [`Corporate Actions Log`],
+    [`Company: ${info.name||''}`],
+    [`Date Generated: ${new Date().toLocaleString('en-IN')}`],
+    [],
+    ['Date','Action Type','From','To','Share Class','Shares','Price per Share (₹)',
+     'Total Consideration (₹)','Authority Reference','SH-4 Ref.','Remarks','Recorded At']
+  ];
+  getTX().sort((a,b)=>new Date(b.date)-new Date(a.date)).forEach(t => rows.push([
+    t.date, t.type, t.from, t.to, t.shareClass, t.shares, t.price||'',
+    t.consideration||'', t.authority||'', t.sh4||'', t.remarks||'',
+    t.recordedAt ? new Date(t.recordedAt).toLocaleString('en-IN') : ''
+  ]));
+  downloadCSV(rows, `CorporateActions_${(info.name||'Company').replace(/\s+/g,'_')}.csv`);
+}
+
+function exportCapCSV() {
+  const info   = coInfo();
+  const active = getSH().filter(s => s.status === 'Active');
+  const D      = active.filter(s=>EQUITY.has(s.shareClass)).reduce((a,s)=>a+s.shares,0)||1;
+  const FD     = (active.filter(s=>EQUITY.has(s.shareClass)).reduce((a,s)=>a+s.shares,0) +
+                  active.filter(s=>s.isConvertible).reduce((a,s)=>a+s.shares*(s.convRatio||1),0))||1;
+  const rows = [
+    [`Cap Table — ${info.name||''}`],
+    [`CIN: ${info.cin||''}`],
+    [`Date Generated: ${new Date().toLocaleString('en-IN')}`],
+    [],
+    ['#','Shareholder Name','Folio No.','Category','Type of Shares',
+     'Number of Shares','% Holding (Equity)','FD Shares','FD %']
+  ];
+  [...active].sort((a,b)=>{
+    const ae=EQUITY.has(a.shareClass)?a.shares:0; const be=EQUITY.has(b.shareClass)?b.shares:0; return be-ae;
+  }).forEach((s,i)=>{
+    const isEq = EQUITY.has(s.shareClass);
+    const pct  = isEq ? (s.shares/D*100).toFixed(4) : '—';
+    const fd   = s.isConvertible ? s.shares*(s.convRatio||1) : (isEq?s.shares:0);
+    const fdp  = fd > 0 ? (fd/FD*100).toFixed(4) : '—';
+    rows.push([i+1, s.name, s.folio, s.type, s.shareClass, s.shares, pct, fd||'—', fdp]);
+  });
+  rows.push(['','Grand Total','','','',
+    active.reduce((a,s)=>a+s.shares,0), '100.0000', FD, '100.0000']);
+  downloadCSV(rows, `CapTable_${(info.name||'Company').replace(/\s+/g,'_')}.csv`);
+}
+
+/* ─────────────────────────────────────────────
+   RENDER ALL
+───────────────────────────────────────────── */
+function renderAll() {
+  if (!CID) return;
+  renderDashboard();
+  refreshClassFilter();
+  filterMembers();
+  refreshTxFilter();
+  filterTx();
+  document.getElementById('bdgM').textContent = getSH().filter(s=>s.status==='Active').length;
+  document.getElementById('bdgT').textContent = getTX().length;
+}
+
+/* ─────────────────────────────────────────────
+   INIT
+───────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('tx-date').value = new Date().toISOString().split('T')[0];
+  renderPicker();
+});
+</script>
+</body>
+</html>
